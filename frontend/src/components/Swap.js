@@ -133,7 +133,7 @@ function Swap(props) {
         duration: 0,
       })
     }
-  },[isLoading])
+  }, [isLoading])
 
   useEffect(() => {
     messageApi.destroy();
@@ -150,7 +150,7 @@ function Swap(props) {
         duration: 1.50,
       })
     }
-  },[isSuccess])
+  }, [isSuccess])
 
   const settings = (
     <>
