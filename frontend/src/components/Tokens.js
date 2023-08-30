@@ -6,4 +6,4 @@ function Tokens() {
   )
 }
 
-export default Tokens
+export default Tokens;

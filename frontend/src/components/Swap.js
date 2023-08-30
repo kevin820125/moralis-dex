@@ -9,7 +9,6 @@ import tokenList from "../tokenList.json";
 import axios from "axios";
 import { useSendTransaction, useWaitForTransaction } from "wagmi";
 
-
 function Swap(props) {
   const { address, isConnected } = props;
   const [messageApi, contextHolder] = message.useMessage();
@@ -25,7 +24,7 @@ function Swap(props) {
     to:null,
     data: null,
     value: null,
-  }); 
+  });
 
   const {data, sendTransaction} = useSendTransaction({
     request: {
@@ -46,9 +45,9 @@ function Swap(props) {
 
   function changeAmount(e) {
     setTokenOneAmount(e.target.value);
-    if(e.target.value && prices){
+    if(e.target.value && prices) {
       setTokenTwoAmount((e.target.value * prices.ratio).toFixed(2))
-    }else{
+    } else {
       setTokenTwoAmount(null);
     }
   }
@@ -69,7 +68,7 @@ function Swap(props) {
     setIsOpen(true);
   }
 
-  function modifyToken(i){
+  function modifyToken(i) {
     setPrices(null);
     setTokenOneAmount(null);
     setTokenTwoAmount(null);
@@ -80,31 +79,27 @@ function Swap(props) {
       setTokenTwo(tokenList[i]);
       fetchPrices(tokenOne.address, tokenList[i].address)
     }
+
     setIsOpen(false);
   }
 
-  async function fetchPrices(one, two){
+  async function fetchPrices(one, two) {
+    const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/tokenPrice`, {
+      params: {addressOne: one, addressTwo: two}
+    })
 
-      const res = await axios.get(`http://localhost:3001/tokenPrice`, {
-        params: {addressOne: one, addressTwo: two}
-      })
-
-      
-      setPrices(res.data)
+    setPrices(res.data)
   }
 
-  async function fetchDexSwap(){
-
+  async function fetchDexSwap() {
     const allowance = await axios.get(`https://api.1inch.io/v5.0/1/approve/allowance?tokenAddress=${tokenOne.address}&walletAddress=${address}`)
-  
-    if(allowance.data.allowance === "0"){
 
+    if(allowance.data.allowance === "0") {
       const approve = await axios.get(`https://api.1inch.io/v5.0/1/approve/transaction?tokenAddress=${tokenOne.address}`)
 
       setTxDetails(approve.data);
       console.log("not approved")
       return
-
     }
 
     const tx = await axios.get(
@@ -115,56 +110,47 @@ function Swap(props) {
     setTokenTwoAmount((Number(tx.data.toTokenAmount)/decimals).toFixed(2));
 
     setTxDetails(tx.data.tx);
-  
   }
 
 
-  useEffect(()=>{
-
+  useEffect(() => {
     fetchPrices(tokenList[0].address, tokenList[1].address)
-
   }, [])
 
-  useEffect(()=>{
-
-      if(txDetails.to && isConnected){
-        sendTransaction();
-      }
+  useEffect(() => {
+    if(txDetails.to && isConnected) {
+      sendTransaction();
+    }
   }, [txDetails])
 
-  useEffect(()=>{
-
+  useEffect(() => {
     messageApi.destroy();
 
-    if(isLoading){
+    if(isLoading) {
       messageApi.open({
         type: 'loading',
         content: 'Transaction is Pending...',
         duration: 0,
       })
-    }    
-
+    }
   },[isLoading])
 
-  useEffect(()=>{
+  useEffect(() => {
     messageApi.destroy();
-    if(isSuccess){
+    if (isSuccess) {
       messageApi.open({
         type: 'success',
         content: 'Transaction Successful',
         duration: 1.5,
       })
-    }else if(txDetails.to){
+    } else if (txDetails.to) {
       messageApi.open({
         type: 'error',
         content: 'Transaction Failed',
         duration: 1.50,
       })
     }
-
-
   },[isSuccess])
-
 
   const settings = (
     <>

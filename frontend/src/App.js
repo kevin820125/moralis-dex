@@ -13,7 +13,6 @@ function App() {
   });
 
   return (
-
     <div className="App">
       <Header connect={connect} isConnected={isConnected} address={address} />
       <div className="mainWindow">
@@ -22,7 +21,6 @@ function App() {
           <Route path="/tokens" element={<Tokens />} />
         </Routes>
       </div>
-
     </div>
   )
 }
