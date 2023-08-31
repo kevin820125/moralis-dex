@@ -92,10 +92,20 @@ function Swap(props) {
   }
 
   async function fetchDexSwap() {
-    const allowance = await axios.get(`https://api.1inch.io/v5.2/1/approve/allowance?tokenAddress=${tokenOne.address}&walletAddress=${address}`)
+    const allowance = await axios.get(`${process.env.REACT_APP_1INCH_API_URL}/swap/v5.2/1/approve/allowance?tokenAddress=${tokenOne.address}&walletAddress=${address}`, {
+      headers: {
+        'Accept': '*/*',
+        'Authorization': `Bearer ${process.env.REACT_APP_1INCH_API_KEY}`
+      }
+    });
 
     if(allowance.data.allowance === "0") {
-      const approve = await axios.get(`https://api.1inch.io/v5.2/1/approve/transaction?tokenAddress=${tokenOne.address}`)
+      const approve = await axios.get(`${process.env.REACT_APP_1INCH_API_URL}/swap/v5.2/1/approve/transaction?tokenAddress=${tokenOne.address}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_1INCH_API_KEY}`
+        }
+      });
 
       setTxDetails(approve.data);
       console.log("not approved")
@@ -103,8 +113,14 @@ function Swap(props) {
     }
 
     const tx = await axios.get(
-      `https://api.1inch.io/v5.2/1/swap?src=${tokenOne.address}&dst=${tokenTwo.address}&amount=${tokenOneAmount.padEnd(tokenOne.decimals+tokenOneAmount.length, '0')}&from=${address}&slippage=${slippage}`
-    )
+      `${process.env.REACT_APP_1INCH_API_URL}/swap/v5.2/1/swap?src=${tokenOne.address}&dst=${tokenTwo.address}&amount=${tokenOneAmount.padEnd(tokenOne.decimals+tokenOneAmount.length, '0')}&from=${address}&slippage=${slippage}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_1INCH_API_KEY}`
+        }
+      }
+    );
 
     let decimals = Number(`1E${tokenTwo.decimals}`)
     setTokenTwoAmount((Number(tx.data.toTokenAmount)/decimals).toFixed(2));
